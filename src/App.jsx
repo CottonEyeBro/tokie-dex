@@ -1,7 +1,7 @@
+import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import WalletConnector from './components/WalletConnector';
 import { useTokiemon } from './hooks/useTokiemon';
-import { useState } from 'react';
 
 export default function App() {
   const { address, isConnected } = useAccount();

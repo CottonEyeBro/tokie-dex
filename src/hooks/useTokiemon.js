@@ -765,5 +765,9 @@ export function useTokiemon(address) {
     args: [address],
   });
 
+  console.log('Data:', data);
+  console.log('Loading:', isLoading);
+  console.log('Error:', error);
+
   return { data, isLoading, error };
 }
