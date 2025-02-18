@@ -8,9 +8,9 @@ export default function WalletConnector() {
   return (
     <div>
       {isConnected ? (
-        <div>
-          <p>Connected: {address}</p>
-          <button onClick={() => disconnect()}>Disconnect</button>
+        <div id="wallet-info">
+          <span id="wallet-address">Connected: {address}</span>
+          <button id='disconnect-button' onClick={() => disconnect()}>Disconnect</button>
         </div>
       ) : (
         <div>

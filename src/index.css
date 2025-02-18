@@ -5,7 +5,10 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  --bg-color: #242424;
+  --text-color: rgba(255, 255, 255, 0.87);
+  --button-bg: #1a1a1a;
+  --button-hover-border: #646cff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -25,9 +28,12 @@ a:hover {
 body {
   margin: 0;
   display: flex;
-  place-items: center;
+  flex-direction: column;
+  align-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 h1 {
@@ -39,17 +45,108 @@ button {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
+  margin: 0 0.5em 0 0.5em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--button-bg);
+  border-color: transparent;
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
-  border-color: #646cff;
+  border-color: var(--button-hover-border);
 }
+
 button:focus,
+
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+select {
+  appearance: none;
+  background-color: #1a1a1a;
+  color: rgba(255, 255, 255, 0.87);
+  border: 1px solid #646cff;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.25s, background-color 0.25s;
+}
+
+select:hover {
+  border-color: #535bf2;
+}
+
+select {
+  padding-right: 2rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='rgba(255,255,255,0.87)'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+}
+
+input {
+  width: 100%;
+  max-width: 300px;
+  background-color: #1a1a1a;
+  color: rgba(255, 255, 255, 0.87);
+  border: 1px solid #646cff;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  border-radius: 8px;
+  transition: border-color 0.25s, background-color 0.25s;
+  outline: none;
+}
+
+h2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#wallet-info {
+  display: flex; /* Use Flexbox for horizontal alignment */
+  align-items: center; /* Vertically center the items */
+  gap: 10px; /* Add space between the address and button */
+  padding: 0.6em 1.2em;
+  background-color: var(--button-bg); /* Match button background */
+  border-radius: 8px; /* Match border radius */
+  border: 1px solid transparent; /* Match border style */
+  transition: border-color 0.25s; /* Match transition */
+  font-family: inherit; /* Match font family */
+}
+
+#wallet-info:hover {
+  border-color: var(--button-hover-border); /* Match hover border color */
+}
+
+#wallet-address {
+  font-size: 1em; /* Match font size */
+  font-weight: 500; /* Match font weight */
+  color: var(--text-color); /* Match text color */
+}
+
+#disconnect-button {
+  padding: 0.6em 1.2em; /* Match button padding */
+  background-color: var(--button-bg); /* Match button background */
+  color: var(--text-color); /* Match text color */
+  border: 1px solid transparent; /* Match border style */
+  border-radius: 8px; /* Match border radius */
+  cursor: pointer; /* Match cursor */
+  font-size: 1em; /* Match font size */
+  font-weight: 500; /* Match font weight */
+  font-family: inherit; /* Match font family */
+  transition: border-color 0.25s; /* Match transition */
+}
+
+#disconnect-button:hover {
+  border-color: var(--button-hover-border); /* Match hover border color */
 }
