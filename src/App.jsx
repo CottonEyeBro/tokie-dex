@@ -5,11 +5,11 @@ import { useTokiemon } from './components/useTokiemon';
 
 export default function App() {
   const { address, isConnected } = useAccount();
-  const { tokenIds, isLoading, error } = useTokiemon(address);
+  const { tokenMetadata, isLoading, error } = useTokiemon(address);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
 
-  const filteredTokiemon = tokenIds
+  const filteredTokiemon = tokenMetadata
     ?.filter((mon) =>
       mon.name.toLowerCase().includes(searchTerm.toLowerCase())
     )
@@ -48,8 +48,8 @@ export default function App() {
             <div>
               <h2>Your Tokiemon</h2>
               <ul>
-                {filteredTokiemon.map((mon, index) => (
-                  <li key={index}>{mon.name}</li>
+                {filteredTokiemon.map((mon) => (
+                  <li key={mon.id}>{mon.name}</li>
                 ))}
               </ul>
             </div>

@@ -1,5 +1,4 @@
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
-import { useTokiemon } from './useTokiemon';
 
 export default function WalletConnector() {
   const { connect, connectors } = useConnect();
