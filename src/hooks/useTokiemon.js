@@ -758,16 +758,44 @@ const TOKIEMON_ABI = [    // TOKIEMON_NFT_ABI JSON from https://github.com/alma-
 ];
 
 export function useTokiemon(address) {
-  const { data, isLoading, error } = useReadContract({
+  // First, fetch the user's balance data (# of Tokiemons owned by the wallet)
+  const { 
+    data: balance,
+    isLoading: isBalanceLoading,
+    error: balanceError, 
+  } = useReadContract({
     address: TOKIEMON_CONTRACT_ADDRESS,
     abi: TOKIEMON_ABI,
-    functionName: 'getUserTokiemon',
+    functionName: 'balanceOf',
     args: [address],
   });
 
-  console.log('Data:', data);
-  console.log('Loading:', isLoading);
-  console.log('Error:', error);
+  // Step 2: Fetch token IDs for each index
+  const tokenIds = [];
+  if (balance && !isBalanceLoading && !balanceError) {
+    for (let i = 0; i < balance; i++) {
+      const {
+        data: tokenId,
+        isLoading: isTokenIdLoading,
+        error: tokenIdError,
+      } = useReadContract( {
+        address: TOKIEMON_CONTRACT_ADDRESS,
+        abi: TOKIEMON_ABI,
+        functionName: 'tokenOfOwnerByIndex',
+        args: [address, i],
+      });
 
-  return { data, isLoading, error };
+      if (tokenId) {
+        tokenIds.push(tokenId);
+      }
+    }
+  }
+
+  // Step 3: Return the token IDs, loading state, and error state
+  return {
+    tokenIds,
+    isLoading: isBalanceLoading || tokenIds.some((id) => id === undefined), 
+    // Check if any token ID is still loading
+    error: balanceError || tokenIds.some((id) => id.error), // Check if any token ID fetch resulted in an error
+  };
 }

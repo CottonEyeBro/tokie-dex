@@ -5,11 +5,11 @@ import { useTokiemon } from './hooks/useTokiemon';
 
 export default function App() {
   const { address, isConnected } = useAccount();
-  const { data: tokiemon, isLoading, error } = useTokiemon(address);
+  const { tokenIds, isLoading, error } = useTokiemon(address);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
 
-  const filteredTokiemon = tokiemon
+  const filteredTokiemon = tokenIds
     ?.filter((mon) =>
       mon.name.toLowerCase().includes(searchTerm.toLowerCase())
     )
@@ -23,7 +23,7 @@ export default function App() {
 
   return (
     <div>
-      <h1>Tokiemon App</h1>
+      <h1>Welcome to the Tokiedex!</h1>
       <WalletConnector />
       {isConnected && (
         <div>
