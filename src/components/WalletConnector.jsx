@@ -1,12 +1,10 @@
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { useTokiemon } from './useTokiemon';
 
 export default function WalletConnector() {
-  const { connect, connectors, error: connectError } = useConnect();
+  const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const { address, isConnected } = useAccount();
-
-  // console.log('Connectors:', connectors); // Log available connectors
-  // console.log('Connect Error:', connectError); // Log any connection errors
 
   return (
     <div>
