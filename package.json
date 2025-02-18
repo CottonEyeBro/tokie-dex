@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@wagmi/connectors": "^5.7.7",
     "@wagmi/core": "^2.16.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

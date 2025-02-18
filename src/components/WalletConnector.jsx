@@ -1,9 +1,12 @@
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 
 export default function WalletConnector() {
-  const { connect, connectors } = useConnect();
+  const { connect, connectors, error: connectError } = useConnect();
   const { disconnect } = useDisconnect();
   const { address, isConnected } = useAccount();
+
+  // console.log('Connectors:', connectors); // Log available connectors
+  // console.log('Connect Error:', connectError); // Log any connection errors
 
   return (
     <div>
@@ -15,7 +18,13 @@ export default function WalletConnector() {
       ) : (
         <div>
           {connectors.map((connector) => (
-            <button key={connector.id} onClick={() => connect({ connector })}>
+            <button
+              key={connector.id}
+              onClick={() => {
+                console.log('Attempting to connect with:', connector.name); // Log which connector is being used
+                connect({ connector });
+              }}
+            >
               Connect with {connector.name}
             </button>
           ))}
