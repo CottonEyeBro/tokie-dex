@@ -33,6 +33,7 @@ export default function App() {
           {/* Search Bar */}
           <input
             type="text"
+            className="search-bar"
             placeholder="Search by ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -42,6 +43,7 @@ export default function App() {
           <button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
             Sort by ID: {sortOrder === 'asc' ? 'Low-High' : 'High-Low'}
           </button>
+          <br></br>
 
           {/* Tokiemon List */}
           <span>Total Tokiemon: {totalNFTs}</span>

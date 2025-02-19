@@ -16,15 +16,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
 body {
   margin: 0;
   display: flex;
@@ -39,6 +30,15 @@ body {
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+p {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 button {
@@ -65,35 +65,8 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-select {
-  appearance: none;
-  background-color: #1a1a1a;
-  color: rgba(255, 255, 255, 0.87);
-  border: 1px solid #646cff;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: border-color 0.25s, background-color 0.25s;
-}
-
-select:hover {
-  border-color: #535bf2;
-}
-
-select {
-  padding-right: 2rem;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='rgba(255,255,255,0.87)'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 16px;
-}
-
-input {
-  width: 100%;
-  max-width: 300px;
+.search-bar {
+  width: 700px;
   background-color: #1a1a1a;
   color: rgba(255, 255, 255, 0.87);
   border: 1px solid #646cff;
@@ -120,12 +93,7 @@ h2 {
   background-color: var(--button-bg);
   border-radius: 8px;
   border: 1px solid transparent;
-  transition: border-color 0.25s;
   font-family: inherit;
-}
-
-#wallet-info:hover {
-  border-color: var(--button-hover-border);
 }
 
 #wallet-address {
@@ -135,6 +103,7 @@ h2 {
 }
 
 #disconnect-button {
+  margin-left: auto;
   padding: 0.6em 1.2em;
   background-color: var(--button-bg);
   color: var(--text-color);
