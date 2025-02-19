@@ -1,17 +1,33 @@
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { useTokiemon } from '../hooks/useTokiemon';
 
 export default function WalletConnector() {
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const { address, isConnected } = useAccount();
+  const { totalNFTs } = useTokiemon();
 
   return (
     <div>
       {isConnected ? (
-        <div id="wallet-info">
-          <span id="wallet-address">Connected: {address}</span>
-          <button id='disconnect-button' onClick={() => disconnect()}>Disconnect</button>
-        </div>
+        totalNFTs === 0 ? (
+          <div>
+            <h2>Your Wallet</h2>
+            <div id="wallet-info">
+              <span id="wallet-address">Connected: {address}</span>
+              <button id='disconnect-button' onClick={() => disconnect()}>Disconnect</button>
+            </div>
+            <p>You don't own any Tokiemon yet...</p>
+          </div>
+        ) : (
+          <div>
+            <h2>Your Wallet</h2>
+            <div id="wallet-info">
+              <span id="wallet-address">Connected: {address}</span>
+              <button id='disconnect-button' onClick={() => disconnect()}>Disconnect</button>
+            </div>
+          </div>
+        )
       ) : (
         <div>
           {connectors.map((connector) => (

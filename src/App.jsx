@@ -1,61 +1,73 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { useTokiemon } from './hooks/useTokiemon';
 import { useAccount } from 'wagmi';
 import WalletConnector from './components/WalletConnector';
-import { useTokiemon } from './hooks/useTokiemon';
 
 export default function App() {
-  const { address, isConnected } = useAccount();
-  const { tokenMetadata, isLoading, error } = useTokiemon(address);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortOrder, setSortOrder] = useState('asc');
+  const { isConnected } = useAccount(); // Get wallet connection status
+  const { totalNFTs, nfts, tokenURI } = useTokiemon(); // Fetch Tokiemon data
 
-  const filteredTokiemon = tokenMetadata
-    ?.filter((mon) =>
-      mon.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const [searchQuery, setSearchQuery] = useState(''); // Search query state
+  const [sortOrder, setSortOrder] = useState('asc'); // Sorting order state
+
+  // Step 1: Filter and sort Tokiemon based on user input
+  const filteredTokiemon = nfts
+    .filter((tokiemon) =>
+      tokiemon.id.includes(searchQuery) ||
+      tokiemon.community.toLowerCase().includes(searchQuery.toLowerCase())
     )
-    .sort((a, b) => {
-      if (sortOrder === 'asc') {
-        return a.name.localeCompare(b.name);
-      } else {
-        return b.name.localeCompare(a.name);
-      }
-    });
-
-  console.log(filteredTokiemon)
+    .sort((a, b) => (sortOrder === 'asc' ? a.id - b.id : b.id - a.id));
 
   return (
     <div>
-      <h1>Welcome to the Tokiedex!</h1>
-      <WalletConnector />
-      {isConnected && (
+      <h1>Welcome to your Tokiedex</h1>
+
+      {isConnected ? (
         <div>
+          <WalletConnector />
+          <h2>Your Collection</h2>
+
+          {/* Search Bar */}
           <input
             type="text"
-            placeholder="Search Tokiemon"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by ID or community..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <select
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-          >
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
-          </select>
-          {isLoading ? (
-            <p>Loading Tokiemon...</p>
-          ) : error ? (
-            <p>Error: {error.message}</p>
-          ) : (
-            <div>
-              <h2>Your Tokiemon</h2>
-              <ul>
-                {filteredTokiemon.map((mon) => (
-                  <li key={mon.id}>{mon.name}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+
+          {/* Sort Toggle */}
+          <button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
+            Sort by ID: {sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+          </button>
+
+          {/* Tokiemon List */}
+          <span>Total Tokiemon: {totalNFTs}</span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+            {filteredTokiemon.map((tokiemon) => (
+              <div
+                key={tokiemon.id}
+                style={{ border: '1px solid #ccc', padding: '16px', borderRadius: '8px' }}
+              >
+                <h3>ID: {tokiemon.id}</h3>
+                {tokiemon.image && (
+                  <img
+                    src={tokiemon.image}
+                    alt={`Tokiemon ${tokiemon.id}`}
+                    style={{ width: '100px', height: '100px', borderRadius: '8px' }}
+                  />
+                )}
+                <p>Community: {tokiemon.community}</p>
+                <p>Name: {tokiemon.name}</p>
+                <p>Tier: {tokiemon.tier}</p>
+                <p>Rarity: {tokiemon.rarity}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div>
+          <WalletConnector />
+          <p>Please connect your wallet to view your Tokiemon collection.</p>
         </div>
       )}
     </div>
