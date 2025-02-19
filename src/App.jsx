@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTokiemon } from './hooks/useTokiemon';
 import { useAccount } from 'wagmi';
 import WalletConnector from './components/WalletConnector';
+import TokiemonCard from './components/TokiemonCard'; // Import the new component
 
 export default function App() {
   const { isConnected } = useAccount(); // Get wallet connection status
@@ -17,6 +18,8 @@ export default function App() {
       tokiemon.community.toLowerCase().includes(searchQuery.toLowerCase())
     )
     .sort((a, b) => (sortOrder === 'asc' ? a.id - b.id : b.id - a.id));
+
+  // console.log('Filtered Tokiemon:', filteredTokiemon);
 
   return (
     <div>
@@ -42,22 +45,9 @@ export default function App() {
 
           {/* Tokiemon List */}
           <span>Total Tokiemon: {totalNFTs}</span>
-          <div className='tokiemon-card' style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+          <div className="tokiemon-list">
             {filteredTokiemon.map((tokiemon) => (
-              <div key={tokiemon.id}>
-                <h3>ID: {tokiemon.id}</h3>
-                {tokiemon.image && (
-                  <img
-                    src={tokiemon.image}
-                    alt={`Tokiemon ${tokiemon.id}`}
-                    style={{ width: '100px', height: '100px', borderRadius: '8px', backgroundColor: 'white' }}
-                  />
-                )}
-                <p>Community: {tokiemon.community}</p>
-                <p>Name: {tokiemon.name}</p>
-                <p>Tier: {tokiemon.tier}</p>
-                <p>Rarity: {tokiemon.rarity}</p>
-              </div>
+              <TokiemonCard key={tokiemon.id} tokiemon={tokiemon} />
             ))}
           </div>
         </div>

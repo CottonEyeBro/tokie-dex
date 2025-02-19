@@ -17,6 +17,34 @@ export function useTokiemon() {
   const [isLoading, setIsLoading] = useState(true); // Loading state
   const [isFetched, setIsFetched] = useState(false); // State to track if data has been fetched
 
+  // Mock Tokiemon data for testing
+  const mockTokiemon = [
+    {
+      id: '65700',
+      community: 'TOKIEMON',
+      name: 'Telewurl',
+      tier: 'Kawaii',
+      rarity: 'Uncommon',
+      image: 'https://imagedelivery.net/jl4KsGg6uKeITWxpmTggpQ/d55cabea-27b1-4c50-7bdd-8a95d4193900/full', // Placeholder image
+    },
+    {
+      id: '55760',
+      community: 'ETH',
+      name: 'Draghost',
+      tier: 'Dragon',
+      rarity: 'Rare',
+      image: 'https://imagedelivery.net/jl4KsGg6uKeITWxpmTggpQ/8543e74c-da0d-40eb-898f-f225e5fbc900/full', // Placeholder image
+    },
+    {
+      id: '55876',
+      community: 'BASED',
+      name: 'Silast',
+      tier: 'Dragon',
+      rarity: 'Legendary',
+      image: 'https://imagedelivery.net/jl4KsGg6uKeITWxpmTggpQ/a746cd26-1f8f-46a3-8d6b-5fff10011800/full', // Placeholder image
+    },
+  ];
+
   // Step 1: Get total NFT count
   const { data: balanceOfData } = useReadContract({
     address: TOKIEMON_ADDRESS,
@@ -66,86 +94,84 @@ export function useTokiemon() {
   useEffect(() => {
     const fetchMetadata = async () => {
       if (!isFetched && tokenURIData && tokenIds.length > 0) {
-        setIsLoading(true); // Set loading state to true
-  
+        setIsLoading(true);
+
         try {
+          const nftData = await Promise.all(
+            tokenURIData.map(async (uriData, index) => {
+              const tokenId = tokenIds[index];
+              const uri = uriData.result;
 
-const nftData = await Promise.all(
-  tokenURIData.map(async (uriData, index) => {
-    const tokenId = tokenIds[index];
-    const uri = uriData.result;
+              if (uri) {
+                try {
+                  const response = await fetch(uri);
+                  const metadata = await response.json();
 
-    if (uri) {
-      try {
-        // Fetch metadata JSON from the tokenURI
-        const response = await fetch(uri);
-        const metadata = await response.json();
+                  let community = '';
+                  let rarity = '';
+                  let tier = '';
 
-        // Extract community, rarity, and tier from attributes
-        let community = '';
-        let rarity = '';
-        let tier = '';
+                  if (metadata.attributes) {
+                    metadata.attributes.forEach((attribute) => {
+                      switch (attribute.trait_type) {
+                        case 'Community':
+                          community = attribute.value;
+                          break;
+                        case 'Rarity':
+                          rarity = attribute.value;
+                          break;
+                        case 'Purchase Tier':
+                          tier = attribute.value;
+                          break;
+                        default:
+                          break;
+                      }
+                    });
+                  }
 
-        if (metadata.attributes) {
-          metadata.attributes.forEach(attribute => {
-            switch (attribute.trait_type) {
-              case 'Community':
-                community = attribute.value;
-                break;
-              case 'Rarity':
-                rarity = attribute.value;
-                break;
-              case 'Purchase Tier':
-                tier = attribute.value;
-                break;
-              default:
-                break;
-            }
-          });
-        }
+                  return {
+                    id: tokenId,
+                    community,
+                    name: metadata.name || '',
+                    tier,
+                    rarity,
+                    image: metadata.image || '',
+                  };
+                } catch (error) {
+                  console.error(`Error fetching metadata for token ${tokenId}:`, error);
+                  return {
+                    id: tokenId,
+                    community: '',
+                    name: '',
+                    tier: '',
+                    rarity: '',
+                    image: '',
+                  };
+                }
+              }
+              return {
+                id: tokenId,
+                community: '',
+                name: '',
+                tier: '',
+                rarity: '',
+                image: '',
+              };
+            })
+          );
 
-        return {
-          id: tokenId,
-          community,
-          name: metadata.name || '', // From tokenURI
-          tier,
-          rarity,
-          image: metadata.image || '', // From tokenURI
-        };
-      } catch (error) {
-        console.error(`Error fetching metadata for token ${tokenId}:`, error);
-        return {
-          id: tokenId,
-          community: '',
-          name: '',
-          tier: '',
-          rarity: '',
-          image: '',
-        };
-      }
-    }
-    return {
-      id: tokenId,
-      community: '',
-      name: '',
-      tier: '',
-      rarity: '',
-      image: '',
-    };
-  })
-);
-          // Update the NFTs state with the fetched data
-          setNfts(nftData);
-          setIsFetched(true); // Mark data as fetched
+          // Add mock Tokiemon data for testing
+          const combinedNfts = [...nftData, ...mockTokiemon];
+          setNfts(combinedNfts);
+          setIsFetched(true);
         } finally {
-          setIsLoading(false); // Set loading state to false
+          setIsLoading(false);
         }
       }
     };
-  
+
     fetchMetadata();
   }, [tokenURIData, tokenIds, isFetched]);
-  
 
-  return { totalNFTs, nfts, isLoading };
+  return { totalNFTs: totalNFTs + mockTokiemon.length, nfts, isLoading };
 }
