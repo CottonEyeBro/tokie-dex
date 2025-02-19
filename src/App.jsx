@@ -5,7 +5,7 @@ import WalletConnector from './components/WalletConnector';
 
 export default function App() {
   const { isConnected } = useAccount(); // Get wallet connection status
-  const { totalNFTs, nfts, tokenURI } = useTokiemon(); // Fetch Tokiemon data
+  const { totalNFTs, nfts } = useTokiemon(); // Fetch Tokiemon data
 
   const [searchQuery, setSearchQuery] = useState(''); // Search query state
   const [sortOrder, setSortOrder] = useState('asc'); // Sorting order state
@@ -30,30 +30,27 @@ export default function App() {
           {/* Search Bar */}
           <input
             type="text"
-            placeholder="Search by ID or community..."
+            placeholder="Search by ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
 
           {/* Sort Toggle */}
           <button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
-            Sort by ID: {sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+            Sort by ID: {sortOrder === 'asc' ? 'Low-High' : 'High-Low'}
           </button>
 
           {/* Tokiemon List */}
           <span>Total Tokiemon: {totalNFTs}</span>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+          <div className='tokiemon-card' style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
             {filteredTokiemon.map((tokiemon) => (
-              <div
-                key={tokiemon.id}
-                style={{ border: '1px solid #ccc', padding: '16px', borderRadius: '8px' }}
-              >
+              <div key={tokiemon.id}>
                 <h3>ID: {tokiemon.id}</h3>
                 {tokiemon.image && (
                   <img
                     src={tokiemon.image}
                     alt={`Tokiemon ${tokiemon.id}`}
-                    style={{ width: '100px', height: '100px', borderRadius: '8px' }}
+                    style={{ width: '100px', height: '100px', borderRadius: '8px', backgroundColor: 'white' }}
                   />
                 )}
                 <p>Community: {tokiemon.community}</p>

@@ -113,40 +113,53 @@ h2 {
 }
 
 #wallet-info {
-  display: flex; /* Use Flexbox for horizontal alignment */
-  align-items: center; /* Vertically center the items */
-  gap: 10px; /* Add space between the address and button */
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 0.6em 1.2em;
-  background-color: var(--button-bg); /* Match button background */
-  border-radius: 8px; /* Match border radius */
-  border: 1px solid transparent; /* Match border style */
-  transition: border-color 0.25s; /* Match transition */
-  font-family: inherit; /* Match font family */
+  background-color: var(--button-bg);
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: border-color 0.25s;
+  font-family: inherit;
 }
 
 #wallet-info:hover {
-  border-color: var(--button-hover-border); /* Match hover border color */
+  border-color: var(--button-hover-border);
 }
 
 #wallet-address {
-  font-size: 1em; /* Match font size */
-  font-weight: 500; /* Match font weight */
-  color: var(--text-color); /* Match text color */
+  font-size: 1em;
+  font-weight: 500;
+  color: var(--text-color);
 }
 
 #disconnect-button {
-  padding: 0.6em 1.2em; /* Match button padding */
-  background-color: var(--button-bg); /* Match button background */
-  color: var(--text-color); /* Match text color */
-  border: 1px solid transparent; /* Match border style */
-  border-radius: 8px; /* Match border radius */
-  cursor: pointer; /* Match cursor */
-  font-size: 1em; /* Match font size */
-  font-weight: 500; /* Match font weight */
-  font-family: inherit; /* Match font family */
-  transition: border-color 0.25s; /* Match transition */
+  padding: 0.6em 1.2em;
+  background-color: var(--button-bg);
+  color: var(--text-color);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  transition: border-color 0.25s;
 }
 
 #disconnect-button:hover {
-  border-color: var(--button-hover-border); /* Match hover border color */
+  border-color: var(--button-hover-border);
+}
+
+.tokiemon-card {
+  border: 1px solid #ccc;
+  padding: 16px;
+  margin-top: 1.2em;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 150px;
 }
