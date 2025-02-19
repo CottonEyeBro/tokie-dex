@@ -1,110 +1,94 @@
-import { useEffect, useState } from 'react';
-import { useReadContract, useAccount } from 'wagmi';
+import { useReadContract, useReadContracts, useAccount } from 'wagmi';
 import { createPublicClient, http } from 'viem';
 import { base } from 'wagmi/chains';
+import { TOKIEMON_ABI } from '../abi'; // Import the hardcoded ABI
 
 export const TOKIEMON_ADDRESS = '0x802187c392b15CDC8df8Aa05bFeF314Df1f65C62';
-export const TOKIEMON_ABI_ENDPOINT = 'https://api.basescan.org/api?module=contract&action=getabi&address=0x2441CD8E84c8F75f7734a57352dBE9EfDC991c8E';
 
-// Create a public client for BaseScan
 export const publicClient = createPublicClient({
   chain: base,
   transport: http(),
 });
 
 export function useTokiemon() {
-  const { address } = useAccount(); // Get the connected user's address
-  const [abi, setAbi] = useState([]); // State to store the ABI
+  const { address } = useAccount();
 
-  // Step 1: Fetch the ABI from the API endpoint
-  useEffect(() => {
-      async function fetchABI() {
-          try {
-              const response = await fetch(ABI_ENDPOINT);
-              const data = await response.json();
-              setAbi(data); // Set the ABI in state
-          } catch (error) {
-              console.error('Error fetching ABI:', error);
-          }
-      }
-
-      fetchABI();
-  }, []);
-
-  // Step 2: Get the total NFT count for the user
+  // Step 1: Get total NFT count
   const { data: balanceOfData } = useReadContract({
-      address: TOKIEMON_ADDRESS,
-      abi: abi,
-      functionName: 'balanceOf',
-      args: [address],
-      enabled: !!address && abi.length > 0, // Only run if the user is connected and ABI is loaded
+    address: TOKIEMON_ADDRESS,
+    abi: TOKIEMON_ABI,
+    functionName: 'balanceOf',
+    args: [address],
+    enabled: !!address,
   });
 
   const totalNFTs = balanceOfData ? Number(balanceOfData) : 0;
 
-  // Step 3: Get the token IDs for each NFT
-  const [tokenIds, setTokenIds] = useState([]);
-  useEffect(() => {
-      async function fetchTokenIds() {
-          const ids = [];
-          for (let i = 0; i < totalNFTs; i++) {
-              const { data: tokenIdData } = useReadContract({
-                  address: TOKIEMON_ADDRESS,
-                  abi: abi,
-                  functionName: 'tokenOfOwnerByIndex',
-                  args: [address, i],
-                  enabled: !!address && abi.length > 0, // Only run if the user is connected and ABI is loaded
-              });
+  // Step 2: Get token IDs
+  const tokenQueries =
+    address && totalNFTs > 0
+      ? Array.from({ length: totalNFTs }, (_, i) => ({
+          address: TOKIEMON_ADDRESS,
+          abi: TOKIEMON_ABI,
+          functionName: 'tokenOfOwnerByIndex',
+          args: [address, i],
+        }))
+      : [];
 
-              if (tokenIdData) {
-                  ids.push(tokenIdData.toString()); // Convert BigNumber to string
-              }
-          }
-          setTokenIds(ids);
-      }
+  const { data: tokenIdsData } = useReadContracts({
+    contracts: tokenQueries,
+    enabled: !!address && totalNFTs > 0,
+  });
 
-      if (totalNFTs > 0) {
-          fetchTokenIds();
-      }
-  }, [totalNFTs, address, abi]);
+  const tokenIds = tokenIdsData ? tokenIdsData.map((id) => id.toString()) : [];
 
-  // Step 4: (Optional) Use publicClient to verify data against BaseScan
-  useEffect(() => {
-      async function verifyData() {
-          if (address && abi.length > 0) {
-              try {
-                  // Example: Verify balanceOf against BaseScan
-                  const balanceOnChain = await publicClient.readContract({
-                      address: TOKIEMON_ADDRESS,
-                      abi: abi,
-                      functionName: 'balanceOf',
-                      args: [address],
-                  });
+  // Step 3: Fetch Metadata (image, community, rarity, tier)
+  const metadataQueries =
+    tokenIds.length > 0
+      ? tokenIds.map((tokenId) => [
+          {
+            address: TOKIEMON_ADDRESS,
+            abi: TOKIEMON_ABI,
+            functionName: 'getTokenImage',
+            args: [tokenId],
+          },
+          {
+            address: TOKIEMON_ADDRESS,
+            abi: TOKIEMON_ABI,
+            functionName: 'getTokenCommunity',
+            args: [tokenId],
+          },
+          {
+            address: TOKIEMON_ADDRESS,
+            abi: TOKIEMON_ABI,
+            functionName: 'getTokenRarity',
+            args: [tokenId],
+          },
+          {
+            address: TOKIEMON_ADDRESS,
+            abi: TOKIEMON_ABI,
+            functionName: 'getTokenTier',
+            args: [tokenId],
+          },
+        ]).flat()
+      : [];
 
-                  console.log('Balance on BaseScan:', Number(balanceOnChain));
+  const { data: metadataData } = useReadContracts({
+    contracts: metadataQueries,
+    enabled: tokenIds.length > 0,
+  });
 
-                  // Example: Verify tokenOfOwnerByIndex for the first token
-                  if (totalNFTs > 0) {
-                      const firstTokenId = await publicClient.readContract({
-                          address: TOKIEMON_ADDRESS,
-                          abi: abi,
-                          functionName: 'tokenOfOwnerByIndex',
-                          args: [address, 0],
-                      });
-
-                      console.log('First Token ID on BaseScan:', firstTokenId.toString());
-                  }
-              } catch (error) {
-                  console.error('Error verifying data on BaseScan:', error);
-              }
-          }
-      }
-
-      verifyData();
-  }, [address, abi, totalNFTs]);
+  // Step 4: Format Metadata
+  const nfts = tokenIds.map((tokenId, index) => ({
+    id: tokenId,
+    image: metadataData?.[index * 4]?.toString() || '',
+    community: metadataData?.[index * 4 + 1]?.toString() || '',
+    rarity: metadataData?.[index * 4 + 2]?.toString() || '',
+    tier: metadataData?.[index * 4 + 3]?.toString() || '',
+  }));
 
   return {
-      totalNFTs,
-      tokenIds,
+    totalNFTs,
+    nfts, // Each NFT has id, image, community, rarity, and tier
   };
 }

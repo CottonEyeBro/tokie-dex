@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useTokiemon, TOKIEMON_ADDRESS, publicClient } from './hooks/useTokiemon';
+import { useTokiemon, publicClient } from './hooks/useTokiemon';
 import { useAccount } from 'wagmi';
 import WalletConnector from './components/WalletConnector';
 
-function App() {
+export default function App() {
   const { isConnected } = useAccount(); // Get wallet connection status and address
-    const { tokenIds, abi } = useTokiemon(); // Fetch Tokiemon data
+    const { tokenIds, TOKIEMON_ABI, TOKIEMON_ADDRESS } = useTokiemon(); // Fetch Tokiemon data
     const [tokiemonMetadata, setTokiemonMetadata] = useState([]); // State to store Tokiemon metadata
     const [searchQuery, setSearchQuery] = useState(''); // State for search query
     const [sortOrder, setSortOrder] = useState('asc'); // State for sorting order
@@ -18,7 +18,7 @@ function App() {
               try {
                   const metadataUri = await publicClient.readContract({
                       address: TOKIEMON_ADDRESS,
-                      abi: abi,
+                      abi: TOKIEMON_ABI,
                       functionName: 'tokenURI',
                       args: [tokenId],
                   });
@@ -33,7 +33,7 @@ function App() {
           setTokiemonMetadata(metadata);
       }
 
-      if (tokenIds.length > 0) {
+      if (tokenIds > 0) {
           fetchMetadata();
       }
   }, [tokenIds]);
@@ -55,7 +55,6 @@ function App() {
   return (
       <div>
           <h1>Welcome to your Tokiedex</h1>
-          <WalletConnector />
           {/* Tokiemon Collection */}
           {isConnected ? (
               <>
@@ -89,8 +88,7 @@ function App() {
           ) : (
               <p>Please connect your wallet to view your Tokiemon collection.</p>
           )}
+          <WalletConnector />
       </div>
   );
 }
-
-export default App;

@@ -7,24 +7,27 @@ export default function WalletConnector() {
   const { address, isConnected } = useAccount();
   const { totalNFTs } = useTokiemon();
 
-  // Display a message if the user has no NFTs
-  if (isConnected && totalNFTs === 0) {
-    return (
-      <div>
-        <h3>Your Tokiemon Collection</h3>
-          <p>You don't own any Tokiemon yet.</p>
-          <button id='disconnect-button' onClick={() => disconnect()}>Disconnect</button>
-      </div>
-    );
-  }
-
   return (
     <div>
       {isConnected ? (
-        <div id="wallet-info">
-          <span id="wallet-address">Connected: {address}</span>
-          <button id='disconnect-button' onClick={() => disconnect()}>Disconnect</button>
-        </div>
+        totalNFTs === 0 ? (
+          <div>
+            <h3>Your Tokiemon Collection</h3>
+            <div id="wallet-info">
+              <span id="wallet-address">Connected: {address}</span>
+              <button id='disconnect-button' onClick={() => disconnect()}>Disconnect</button>
+            </div>
+            <p>You don't own any Tokiemon yet.</p>
+          </div>
+        ) : (
+          <div>
+            <h3>Your Tokiemon Collection</h3>
+            <div id="wallet-info">
+              <span id="wallet-address">Connected: {address}</span>
+              <button id='disconnect-button' onClick={() => disconnect()}>Disconnect</button>
+            </div>
+          </div>
+        )
       ) : (
         <div>
           {connectors.map((connector) => (
