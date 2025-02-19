@@ -1,63 +1,110 @@
 import { useEffect, useState } from 'react';
-import { useReadContract } from 'wagmi';
-import { TOKIEMON_CONTRACT_ADDRESS, TOKIEMON_ABI, publicClient } from '../contract';
+import { useReadContract, useAccount } from 'wagmi';
+import { createPublicClient, http } from 'viem';
+import { base } from 'wagmi/chains';
 
-export function useTokiemon(address) {
-  const [tokenMetadata, setTokenMetadata] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+export const TOKIEMON_ADDRESS = '0x802187c392b15CDC8df8Aa05bFeF314Df1f65C62';
+export const TOKIEMON_ABI_ENDPOINT = 'https://api.basescan.org/api?module=contract&action=getabi&address=0x2441CD8E84c8F75f7734a57352dBE9EfDC991c8E';
 
-  // Fetch the number of NFTs owned by the user
-  const { data: balance } = useReadContract({
-    address: TOKIEMON_CONTRACT_ADDRESS,
-    abi: TOKIEMON_ABI,
-    functionName: 'balanceOf',
-    args: [address],
+// Create a public client for BaseScan
+export const publicClient = createPublicClient({
+  chain: base,
+  transport: http(),
+});
+
+export function useTokiemon() {
+  const { address } = useAccount(); // Get the connected user's address
+  const [abi, setAbi] = useState([]); // State to store the ABI
+
+  // Step 1: Fetch the ABI from the API endpoint
+  useEffect(() => {
+      async function fetchABI() {
+          try {
+              const response = await fetch(ABI_ENDPOINT);
+              const data = await response.json();
+              setAbi(data); // Set the ABI in state
+          } catch (error) {
+              console.error('Error fetching ABI:', error);
+          }
+      }
+
+      fetchABI();
+  }, []);
+
+  // Step 2: Get the total NFT count for the user
+  const { data: balanceOfData } = useReadContract({
+      address: TOKIEMON_ADDRESS,
+      abi: abi,
+      functionName: 'balanceOf',
+      args: [address],
+      enabled: !!address && abi.length > 0, // Only run if the user is connected and ABI is loaded
   });
 
-  // Fetch token IDs and metadata
+  const totalNFTs = balanceOfData ? Number(balanceOfData) : 0;
+
+  // Step 3: Get the token IDs for each NFT
+  const [tokenIds, setTokenIds] = useState([]);
   useEffect(() => {
-    const fetchTokenIdsAndMetadata = async () => {
-      if (!balance) return;
+      async function fetchTokenIds() {
+          const ids = [];
+          for (let i = 0; i < totalNFTs; i++) {
+              const { data: tokenIdData } = useReadContract({
+                  address: TOKIEMON_ADDRESS,
+                  abi: abi,
+                  functionName: 'tokenOfOwnerByIndex',
+                  args: [address, i],
+                  enabled: !!address && abi.length > 0, // Only run if the user is connected and ABI is loaded
+              });
 
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const metadata = [];
-        for (let i = 0; i < balance; i++) {
-          // Fetch token ID
-          const { data: tokenId } = await publicClient.readContract({
-            address: TOKIEMON_CONTRACT_ADDRESS,
-            abi: TOKIEMON_ABI,
-            functionName: 'tokenOfOwnerByIndex',
-            args: [address, i],
-          });
-
-          // Fetch token URI
-          const { data: tokenURI } = await publicClient.readContract({
-            address: TOKIEMON_CONTRACT_ADDRESS,
-            abi: TOKIEMON_ABI,
-            functionName: 'tokenURI',
-            args: [tokenId],
-          });
-
-          // Fetch metadata from URI
-          const response = await fetch(tokenURI);
-          const metadataJson = await response.json();
-          metadata.push({ id: tokenId, ...metadataJson });
-        }
-
-        setTokenMetadata(metadata);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setIsLoading(false);
+              if (tokenIdData) {
+                  ids.push(tokenIdData.toString()); // Convert BigNumber to string
+              }
+          }
+          setTokenIds(ids);
       }
-    };
 
-    fetchTokenIdsAndMetadata();
-  }, [balance, address]);
+      if (totalNFTs > 0) {
+          fetchTokenIds();
+      }
+  }, [totalNFTs, address, abi]);
 
-  return { tokenMetadata, isLoading, error };
+  // Step 4: (Optional) Use publicClient to verify data against BaseScan
+  useEffect(() => {
+      async function verifyData() {
+          if (address && abi.length > 0) {
+              try {
+                  // Example: Verify balanceOf against BaseScan
+                  const balanceOnChain = await publicClient.readContract({
+                      address: TOKIEMON_ADDRESS,
+                      abi: abi,
+                      functionName: 'balanceOf',
+                      args: [address],
+                  });
+
+                  console.log('Balance on BaseScan:', Number(balanceOnChain));
+
+                  // Example: Verify tokenOfOwnerByIndex for the first token
+                  if (totalNFTs > 0) {
+                      const firstTokenId = await publicClient.readContract({
+                          address: TOKIEMON_ADDRESS,
+                          abi: abi,
+                          functionName: 'tokenOfOwnerByIndex',
+                          args: [address, 0],
+                      });
+
+                      console.log('First Token ID on BaseScan:', firstTokenId.toString());
+                  }
+              } catch (error) {
+                  console.error('Error verifying data on BaseScan:', error);
+              }
+          }
+      }
+
+      verifyData();
+  }, [address, abi, totalNFTs]);
+
+  return {
+      totalNFTs,
+      tokenIds,
+  };
 }
