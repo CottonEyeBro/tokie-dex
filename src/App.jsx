@@ -5,7 +5,7 @@ import WalletConnector from './components/WalletConnector';
 
 export default function App() {
   const { isConnected } = useAccount(); // Get wallet connection status
-  const { totalNFTs, nfts } = useTokiemon(); // Fetch Tokiemon data
+  const { totalNFTs, nfts, tokenURI } = useTokiemon(); // Fetch Tokiemon data
 
   const [searchQuery, setSearchQuery] = useState(''); // Search query state
   const [sortOrder, setSortOrder] = useState('asc'); // Sorting order state
@@ -49,6 +49,13 @@ export default function App() {
                 style={{ border: '1px solid #ccc', padding: '16px', borderRadius: '8px' }}
               >
                 <h3>ID: {tokiemon.id}</h3>
+                {tokiemon.image && (
+                  <img
+                    src={tokiemon.image}
+                    alt={`Tokiemon ${tokiemon.id}`}
+                    style={{ width: '100px', height: '100px', borderRadius: '8px' }}
+                  />
+                )}
                 <p>Community: {tokiemon.community}</p>
                 <p>Name: {tokiemon.name}</p>
                 <p>Tier: {tokiemon.tier}</p>

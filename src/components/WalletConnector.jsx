@@ -17,7 +17,7 @@ export default function WalletConnector() {
               <span id="wallet-address">Connected: {address}</span>
               <button id='disconnect-button' onClick={() => disconnect()}>Disconnect</button>
             </div>
-            <p>You don't own any Tokiemon yet.</p>
+            <p>You don't own any Tokiemon yet...</p>
           </div>
         ) : (
           <div>
