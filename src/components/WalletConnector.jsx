@@ -12,7 +12,7 @@ export default function WalletConnector() {
       {isConnected ? (
         totalNFTs === 0 ? (
           <div>
-            <h3>Your Tokiemon Collection</h3>
+            <h2>Your Wallet</h2>
             <div id="wallet-info">
               <span id="wallet-address">Connected: {address}</span>
               <button id='disconnect-button' onClick={() => disconnect()}>Disconnect</button>
@@ -21,7 +21,7 @@ export default function WalletConnector() {
           </div>
         ) : (
           <div>
-            <h3>Your Tokiemon Collection</h3>
+            <h2>Your Wallet</h2>
             <div id="wallet-info">
               <span id="wallet-address">Connected: {address}</span>
               <button id='disconnect-button' onClick={() => disconnect()}>Disconnect</button>

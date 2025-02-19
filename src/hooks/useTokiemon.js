@@ -40,37 +40,17 @@ export function useTokiemon() {
     enabled: !!address && totalNFTs > 0,
   });
 
-  const tokenIds = tokenIdsData ? tokenIdsData.map((id) => id.toString()) : [];
+  const tokenIds = tokenIdsData ? tokenIdsData.map((obj) => obj.result?.toString() || '') : [];
 
-  // Step 3: Fetch Metadata (image, community, rarity, tier)
+  // Step 3: Fetch Metadata using `getTokiemonData`
   const metadataQueries =
     tokenIds.length > 0
-      ? tokenIds.map((tokenId) => [
-          {
-            address: TOKIEMON_ADDRESS,
-            abi: TOKIEMON_ABI,
-            functionName: 'getTokenImage',
-            args: [tokenId],
-          },
-          {
-            address: TOKIEMON_ADDRESS,
-            abi: TOKIEMON_ABI,
-            functionName: 'getTokenCommunity',
-            args: [tokenId],
-          },
-          {
-            address: TOKIEMON_ADDRESS,
-            abi: TOKIEMON_ABI,
-            functionName: 'getTokenRarity',
-            args: [tokenId],
-          },
-          {
-            address: TOKIEMON_ADDRESS,
-            abi: TOKIEMON_ABI,
-            functionName: 'getTokenTier',
-            args: [tokenId],
-          },
-        ]).flat()
+      ? tokenIds.map((tokenId) => ({
+          address: TOKIEMON_ADDRESS,
+          abi: TOKIEMON_ABI,
+          functionName: 'getTokiemonData',
+          args: [tokenId],
+        }))
       : [];
 
   const { data: metadataData } = useReadContracts({
@@ -79,16 +59,19 @@ export function useTokiemon() {
   });
 
   // Step 4: Format Metadata
-  const nfts = tokenIds.map((tokenId, index) => ({
-    id: tokenId,
-    image: metadataData?.[index * 4]?.toString() || '',
-    community: metadataData?.[index * 4 + 1]?.toString() || '',
-    rarity: metadataData?.[index * 4 + 2]?.toString() || '',
-    tier: metadataData?.[index * 4 + 3]?.toString() || '',
-  }));
+  const nfts = tokenIds.map((tokenId, index) => {
+    const metadata = metadataData?.[index]?.result || [];
+    return {
+      id: tokenId?.toString() || '',
+      community: metadata[0]?.toString() || '',
+      name: metadata[1]?.toString() || '',
+      tier: metadata[2]?.toString() || '',
+      rarity: metadata[3]?.toString() || '',
+    };
+  });
 
   return {
     totalNFTs,
-    nfts, // Each NFT has id, image, community, rarity, and tier
+    nfts, // Each NFT has id, community, name, tier, rarity
   };
 }

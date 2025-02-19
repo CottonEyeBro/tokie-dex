@@ -1,94 +1,68 @@
-import React, { useState, useEffect } from 'react';
-import { useTokiemon, publicClient } from './hooks/useTokiemon';
+import React, { useState } from 'react';
+import { useTokiemon } from './hooks/useTokiemon';
 import { useAccount } from 'wagmi';
 import WalletConnector from './components/WalletConnector';
 
 export default function App() {
-  const { isConnected } = useAccount(); // Get wallet connection status and address
-    const { tokenIds, TOKIEMON_ABI, TOKIEMON_ADDRESS } = useTokiemon(); // Fetch Tokiemon data
-    const [tokiemonMetadata, setTokiemonMetadata] = useState([]); // State to store Tokiemon metadata
-    const [searchQuery, setSearchQuery] = useState(''); // State for search query
-    const [sortOrder, setSortOrder] = useState('asc'); // State for sorting order
+  const { isConnected } = useAccount(); // Get wallet connection status
+  const { totalNFTs, nfts } = useTokiemon(); // Fetch Tokiemon data
 
-  // Step 1: Fetch metadata for each Tokiemon
-  useEffect(() => {
-      async function fetchMetadata() {
-          const metadata = [];
-          for (const tokenId of tokenIds) {
-              try {
-                  const metadataUri = await publicClient.readContract({
-                      address: TOKIEMON_ADDRESS,
-                      abi: TOKIEMON_ABI,
-                      functionName: 'tokenURI',
-                      args: [tokenId],
-                  });
+  const [searchQuery, setSearchQuery] = useState(''); // Search query state
+  const [sortOrder, setSortOrder] = useState('asc'); // Sorting order state
 
-                  const response = await fetch(metadataUri);
-                  const data = await response.json();
-                  metadata.push({ ...data, id: tokenId });
-              } catch (error) {
-                  console.error(`Error fetching metadata for token ${tokenId}:`, error);
-              }
-          }
-          setTokiemonMetadata(metadata);
-      }
-
-      if (tokenIds > 0) {
-          fetchMetadata();
-      }
-  }, [tokenIds]);
-
-  // Step 2: Filter and sort Tokiemon based on user input
-  const filteredTokiemon = tokiemonMetadata
-      .filter((tokiemon) =>
-          tokiemon.id.includes(searchQuery) ||
-          tokiemon.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-      .sort((a, b) => {
-          if (sortOrder === 'asc') {
-              return a.id - b.id;
-          } else {
-              return b.id - a.id;
-          }
-      });
+  // Step 1: Filter and sort Tokiemon based on user input
+  const filteredTokiemon = nfts
+    .filter((tokiemon) =>
+      tokiemon.id.includes(searchQuery) ||
+      tokiemon.community.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => (sortOrder === 'asc' ? a.id - b.id : b.id - a.id));
 
   return (
-      <div>
-          <h1>Welcome to your Tokiedex</h1>
-          {/* Tokiemon Collection */}
-          {isConnected ? (
-              <>
-                  {/* Search Bar */}
-                  <input
-                      type="text"
-                      placeholder="Search by ID or name..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                  />
+    <div>
+      <h1>Welcome to your Tokiedex</h1>
 
-                  {/* Sort Toggle */}
-                  <button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
-                      Sort by ID: {sortOrder === 'asc' ? 'Ascending' : 'Descending'}
-                  </button>
-
-                  {/* Tokiemon List */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
-                      {filteredTokiemon.map((tokiemon) => (
-                          <div key={tokiemon.id} style={{ border: '1px solid #ccc', padding: '16px', borderRadius: '8px' }}>
-                              <img src={tokiemon.image} alt={tokiemon.name} style={{ width: '100px', height: '100px' }} />
-                              <h3>{tokiemon.name}</h3>
-                              <p>ID: {tokiemon.id}</p>
-                              <p>Community: {tokiemon.community}</p>
-                              <p>Rarity: {tokiemon.rarity}</p>
-                              <p>Tier: {tokiemon.tier}</p>
-                          </div>
-                      ))}
-                  </div>
-              </>
-          ) : (
-              <p>Please connect your wallet to view your Tokiemon collection.</p>
-          )}
+      {isConnected ? (
+        <div>
           <WalletConnector />
-      </div>
+          <h2>Your Collection</h2>
+
+          {/* Search Bar */}
+          <input
+            type="text"
+            placeholder="Search by ID or community..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+
+          {/* Sort Toggle */}
+          <button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
+            Sort by ID: {sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+          </button>
+
+          {/* Tokiemon List */}
+          <span>Total Tokiemon: {totalNFTs}</span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+            {filteredTokiemon.map((tokiemon) => (
+              <div
+                key={tokiemon.id}
+                style={{ border: '1px solid #ccc', padding: '16px', borderRadius: '8px' }}
+              >
+                <h3>ID: {tokiemon.id}</h3>
+                <p>Community: {tokiemon.community}</p>
+                <p>Name: {tokiemon.name}</p>
+                <p>Tier: {tokiemon.tier}</p>
+                <p>Rarity: {tokiemon.rarity}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div>
+          <WalletConnector />
+          <p>Please connect your wallet to view your Tokiemon collection.</p>
+        </div>
+      )}
+    </div>
   );
 }
