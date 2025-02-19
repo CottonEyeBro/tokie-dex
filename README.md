@@ -12,7 +12,7 @@ a dedicated web app that you build.
 their tokiemon
 a. You can mint a free one at Tokiemon.io on Base if you need an example
 2. Query all the user’s Tokiemon metadata via smart contract, and based on the
-token’s URI display the information about each Tokiemon they hold
+token’s URI, display the information about each Tokiemon they hold
 a. Information should include tokiemon ID, picture, community, rarity, and tier
 (all available via API)
 3. Add some basic sorting and searching functionality to your app for users to sort
